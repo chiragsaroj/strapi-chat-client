@@ -10,6 +10,7 @@ import {
   IconPhone,
   IconPhotoPlus,
   IconPlus,
+  IconPlusEqual,
   IconSearch,
   IconSend,
   IconVideo,
@@ -25,6 +26,7 @@ import { Button } from '@/components/custom/button'
 
 // Fake Data
 import { conversations } from '@/data/conversations.json'
+import { PlusIcon } from '@radix-ui/react-icons'
 
 type ChatUser = (typeof conversations)[number]
 type Convo = ChatUser['messages'][number]
@@ -61,13 +63,12 @@ export default function Chats() {
   return (
     <Layout fixed>
       {/* ===== Top Heading ===== */}
-      <Layout.Header>
-        <Search />
+      {/* <Layout.Header>
+        <UserNav />
         <div className='ml-auto flex items-center space-x-4'>
           <ThemeSwitch />
-          <UserNav />
         </div>
-      </Layout.Header>
+      </Layout.Header> */}
 
       <Layout.Body className='sm:overflow-hidden'>
         <section className='flex h-full gap-6'>
@@ -80,9 +81,10 @@ export default function Chats() {
                   <IconMessages size={20} />
                 </div>
 
-                <Button size='icon' variant='ghost' className='rounded-lg'>
-                  <IconEdit size={24} className='stroke-muted-foreground' />
-                </Button>
+                <div className='flex gap-5 justify-end items-center py-1'>
+                  <UserNav />
+                  <ThemeSwitch />
+                </div>
               </div>
 
               <label className='flex h-12 w-full items-center space-x-0 rounded-md border border-input pl-2 focus-within:outline-none focus-within:ring-1 focus-within:ring-ring'>
@@ -96,7 +98,9 @@ export default function Chats() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </label>
+              <Button className='gap-2 w-full mt-3'>New Chat <IconPlus width={18} /></Button>
             </div>
+
 
             <div className='-mx-3 h-full overflow-auto p-3'>
               {filteredChatList.map((chatUsr) => {
@@ -180,7 +184,7 @@ export default function Chats() {
               </div>
 
               {/* Right */}
-              <div className='-mr-1 flex items-center gap-1 lg:gap-2'>
+              {/* <div className='-mr-1 flex items-center gap-1 lg:gap-2'>
                 <Button
                   size='icon'
                   variant='ghost'
@@ -202,7 +206,7 @@ export default function Chats() {
                 >
                   <IconDotsVertical className='stroke-muted-foreground sm:size-5' />
                 </Button>
-              </div>
+              </div> */}
             </div>
 
             {/* Conversation */}
