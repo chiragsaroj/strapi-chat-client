@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import dayjs from 'dayjs';
 import {
@@ -16,6 +16,8 @@ import { Button } from '@/components/custom/button';
 import { useLocalStorage } from 'usehooks-ts';
 import io from 'socket.io-client';
 import { nanoid } from 'nanoid';
+import { AuthContext } from '@/AuthProvider';
+import { useToast } from '@/hooks/use-toast';
 
 const socket = io('http://localhost:1337');
 
@@ -38,6 +40,8 @@ export default function Chats() {
   const [mobileSelectedUser, setMobileSelectedUser] = useState<ChatUser | null>(
     null
   );
+  const { logout } = useContext(AuthContext);
+  const { toast } = useToast()
 
   const currentMessage =
     selectedUser?.messages?.reduce((acc: Record<string, Convo[]>, obj) => {
@@ -170,7 +174,13 @@ export default function Chats() {
                 </div>
 
                 <div className="flex items-center justify-end gap-4 py-1">
-                  <IconLogout className='cursor-pointer' width={18} />
+                  <IconLogout 
+                  onClick={()=>{
+                    logout()
+                    toast({
+                      description: "You’ve been logged out successfully.",
+                    })
+                  }} className='cursor-pointer' width={18} />
                   <ThemeSwitch />
                 </div>
               </div>
@@ -183,7 +193,7 @@ export default function Chats() {
             <div className="-mx-3 h-full overflow-auto p-3">
               {conv.length > 0 ? (
                 conv.map((chatUsr) => {
-                  const { id, messages, name } = chatUsr;
+                  const { id, messages } = chatUsr;
                   const lastConvo = messages[0];
                   const lastMsg =
                     lastConvo?.sender === 'You'

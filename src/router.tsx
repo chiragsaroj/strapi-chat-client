@@ -24,7 +24,15 @@ const router = createBrowserRouter([
     path: '/',
     lazy: async () => {
       const AppShell = await import('./components/app-shell')
-      return { Component: AppShell.default }
+      const AuthProviderModule = await import('@/AuthProvider.tsx');
+      const AuthProvider = AuthProviderModule.AuthProvider;
+
+      return { Component:(props: any) => (
+        <AuthProvider>
+          <AppShell.default {...props} />
+        </AuthProvider>
+      ),
+    }
     },
     errorElement: <GeneralError />,
     children: [
