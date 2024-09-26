@@ -3,6 +3,7 @@ import { Fragment } from 'react/jsx-runtime';
 import dayjs from 'dayjs';
 import {
   IconArrowLeft,
+  IconLogout,
   IconMessages,
   IconPlus,
   IconSend,
@@ -168,7 +169,8 @@ export default function Chats() {
                   <IconMessages size={20} />
                 </div>
 
-                <div className="flex items-center justify-end gap-5 py-1">
+                <div className="flex items-center justify-end gap-4 py-1">
+                  <IconLogout className='cursor-pointer' width={18} />
                   <ThemeSwitch />
                 </div>
               </div>
