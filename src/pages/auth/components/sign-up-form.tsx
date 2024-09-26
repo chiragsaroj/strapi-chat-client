@@ -1,7 +1,6 @@
 import { HTMLAttributes, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconBrandFacebook, IconBrandGithub } from '@tabler/icons-react'
 import { z } from 'zod'
 import {
   Form,
@@ -15,11 +14,20 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/custom/button'
 import { PasswordInput } from '@/components/custom/password-input'
 import { cn } from '@/lib/utils'
+import axios from 'axios';
+import { useToast } from '@/hooks/use-toast'
+import { useNavigate } from 'react-router-dom'
 
 interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> {}
+const api_key = import.meta.env.VITE_API_KEY
 
 const formSchema = z
   .object({
+    username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long" })
+    .max(20, { message: "Username cannot exceed 20 characters" })
+    .regex(/^[a-zA-Z0-9]+$/, { message: "Username can only contain letters and numbers" }),
     email: z
       .string()
       .min(1, { message: 'Please enter your email' })
@@ -32,7 +40,7 @@ const formSchema = z
       .min(7, {
         message: 'Password must be at least 7 characters long',
       }),
-    confirmPassword: z.string(),
+    confirmPassword: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match.",
@@ -41,23 +49,40 @@ const formSchema = z
 
 export function SignUpForm({ className, ...props }: SignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    delete data.confirmPassword;
     setIsLoading(true)
-    console.log(data)
-
-    setTimeout(() => {
+    const url = api_key + 'auth/local/register'
+    try{
+      const response = await axios.post(url, data)
+      localStorage.setItem('jwtToken', response.data.jwt);
       setIsLoading(false)
-    }, 3000)
+      toast({
+        description: "You have successfully logged in.",
+      })
+      navigate('/')
+    }catch(err: any){
+      console.log(err)
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: err?.response?.data?.error?.message,
+      })
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -67,12 +92,25 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
           <div className='grid gap-2'>
             <FormField
               control={form.control}
+              name='username'
+              render={({ field }) => (
+                <FormItem className='space-y-1'>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder='admin' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name='email'
               render={({ field }) => (
                 <FormItem className='space-y-1'>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
+                    <Input placeholder='admin@example.com' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,37 +146,6 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               Create Account
             </Button>
 
-            <div className='relative my-2'>
-              <div className='absolute inset-0 flex items-center'>
-                <span className='w-full border-t' />
-              </div>
-              <div className='relative flex justify-center text-xs uppercase'>
-                <span className='bg-background px-2 text-muted-foreground'>
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className='flex items-center gap-2'>
-              <Button
-                variant='outline'
-                className='w-full'
-                type='button'
-                loading={isLoading}
-                leftSection={<IconBrandGithub className='h-4 w-4' />}
-              >
-                GitHub
-              </Button>
-              <Button
-                variant='outline'
-                className='w-full'
-                type='button'
-                loading={isLoading}
-                leftSection={<IconBrandFacebook className='h-4 w-4' />}
-              >
-                Facebook
-              </Button>
-            </div>
           </div>
         </form>
       </Form>
