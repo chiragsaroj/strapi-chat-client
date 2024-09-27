@@ -19,7 +19,11 @@ import { nanoid } from 'nanoid';
 import { AuthContext } from '@/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 
-const socket = io('http://localhost:1337');
+const socket = io('http://localhost:1337', {
+  auth: {
+    token: localStorage.getItem('jwtToken')
+  }
+});
 
 interface Convo {
   sender: string;
